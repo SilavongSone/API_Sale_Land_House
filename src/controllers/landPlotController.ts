@@ -2,7 +2,7 @@
 import { Request, Response } from "express";
 import LandPlot from "../models/LandPlot";
 import Zone from "../models/Zone";
-import Sale from "../models/Sale";
+import Project from "../models/Project";
 import { parsePagination, buildPaginationResponse } from "../utils/pagination";
 
 interface QueryParams {
@@ -24,9 +24,8 @@ export const getAllLandPlots = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { limit, skip, orderBy, order, page } = parsePagination(req.query);
+    const { limit, skip, orderBy = "landPlotId", order = "ASC", page } = parsePagination(req.query);
 
-    // Build where conditions
     const whereConditions: any = {};
     if (req.query.zoneId) {
       whereConditions.zoneId = parseInt(req.query.zoneId, 10);
@@ -41,33 +40,39 @@ export const getAllLandPlots = async (
 
     const includes: any[] = [];
 
-    if (req.query.projectId) {
-      includes.push({
+    if (req.query.includeZone !== "false") {
+      const zoneInclude: any = {
         model: Zone,
         as: "zone",
-        where: { projectId: parseInt(req.query.projectId, 10) },
+        attributes: ["zoneId", "zoneName", "projectId"], // include projectId
+        include: [],
+      };
+
+      // Filter zones by projectId if provided
+      if (req.query.projectId) {
+        zoneInclude.where = { projectId: parseInt(req.query.projectId, 10) };
+      }
+
+      // Always include Project info
+      zoneInclude.include.push({
+        model: Project,
+        as: "project",
+        attributes: ["projectId", "projectName"], // include project name
       });
-    } else if (req.query.includeZone !== "false") {
-      includes.push({ model: Zone, as: "zone" });
+
+      includes.push(zoneInclude);
     }
 
-    // include sales
-    // if (req.query.includeSales !== "false") {
-    //   includes.push({ model: Sale, as: "sales" });
-    // }
 
-
-    // Execute query with pagination
     const { rows: landPlots, count: totalLandPlots } = await LandPlot.findAndCountAll({
       where: whereConditions,
       include: includes,
       limit,
       offset: skip,
       order: [[orderBy, order]],
-      distinct: true,
+      distinct: true, // needed if includes may produce duplicates
     });
 
-    // Return response with CORRECT parameter order: (total, limit, page)
     return res.status(200).json({
       data: landPlots,
       pagination: buildPaginationResponse(totalLandPlots, limit, page),
@@ -87,8 +92,22 @@ export const getLandPlotById = async (
 ): Promise<Response> => {
   try {
     const { id } = req.params;
+
     const landPlot = await LandPlot.findByPk(id, {
-      include: ["zone", "sales"],
+      include: [
+        {
+          model: Zone,
+          as: "zone",
+          attributes: ["zoneId", "zoneName", "projectId"],
+          include: [
+            {
+              model: Project,
+              as: "project",
+              attributes: ["projectId", "projectName"],
+            },
+          ],
+        },
+      ],
     });
 
     if (!landPlot) {
@@ -103,6 +122,7 @@ export const getLandPlotById = async (
     });
   }
 };
+
 
 export const createLandPlot = async (
   req: Request,

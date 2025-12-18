@@ -97,33 +97,34 @@ export const getAllZones = async (
 };
 
 
-export const getOption = async (
-  req: Request<{}, {}, {}, QueryParams>,
-  res: Response
-) => {
-  try {
-    const search = req.query.search || "";
+// export const getOption = async (
+//   req: Request<{}, {}, {}, QueryParams>,
+//   res: Response
+// ) => {
+//   try {
+//     const search = req.query.search || "";
 
-    const zone = await Zone.findAll({
-      where: {
-        status: "ACTIVE",
+//     const zone = await Zone.findAll({
+//       where: {
+//         status: "ACTIVE",
 
-        // ...(search && {
-        //   zoneName: { [Op.like]: `%${search}%` }, 
-        // }),
-      },
-      attributes: ["zoneId", "zoneName"],
-      order: [["zoneName", "ASC"]],
-    });
+//       },
+//       attributes: ["zoneId", "totalLandArea"],
+//       order: [["zoneName", "ASC"]],
+//       include: [{
+//         model: LandPlot, as: "landPlots",
+//         attributes: ["landPlotId", "landArea"],
+//       }],
+//     });
 
-    return res.status(200).json({ data: zone });
-  } catch (error: any) {
-    return res.status(500).json({
-      message: "Error fetching projects",
-      error: error?.message || String(error),
-    });
-  }
-};
+//     return res.status(200).json({ data: zone });
+//   } catch (error: any) {
+//     return res.status(500).json({
+//       message: "Error fetching projects",
+//       error: error?.message || String(error),
+//     });
+//   }
+// };
 
 
 export const getZoneById = async (

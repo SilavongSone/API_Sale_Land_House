@@ -51,6 +51,7 @@ export const getAllHouses: RequestHandler<{}, {}, {}, QueryParams> = async (req,
       includes.push({
         model: Zone,
         as: "zone",
+        attributes: ["zoneId", "zoneName",],
         where: { projectId: parseInt(req.query.projectId, 10) },
       });
     } else if (req.query.includeZone !== "false") {

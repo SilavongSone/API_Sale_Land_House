@@ -18,6 +18,7 @@ class Zone extends Model {
   public status!: string;
   public createdAt!: Date;
   public updatedAt!: Date;
+    id: unknown;
 
 }
 

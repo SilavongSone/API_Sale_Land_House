@@ -20,6 +20,7 @@ import projectRoutes from "./routes/projectRoutes";
 import saleRoutes from "./routes/saleRoutes";
 import staffRoutes from "./routes/staffRoutes";
 import zoneRoutes from "./routes/zoneRoutes";
+import areaRoutes from "./routes/areaRoutes";
 
 const app = express();
 app.use(cors());
@@ -39,6 +40,9 @@ app.use("/", projectRoutes);
 app.use("/", saleRoutes);
 app.use("/", staffRoutes);
 app.use("/", zoneRoutes);
+
+// Area routes
+app.use("/", areaRoutes);
 
 // Initialize associations BEFORE syncing
 initAllAssociations();

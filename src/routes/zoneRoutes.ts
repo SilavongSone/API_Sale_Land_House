@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   getAllZones,
-  getOption,
+  // getOption,
   getZoneById,
   createZone,
   updateZone,
@@ -16,7 +16,7 @@ import {
 const router = Router();
 
 router.get("/zones", authenticate, getAllZones);
-router.get("/zones/options", authenticate, getOption);
+// router.get("/zones/options", authenticate, getOption);
 router.get("/zone/:id", authenticate, getZoneById);
 router.post("/zone", authenticate, checkPermission("inserts"), createZone);
 router.put("/zone/:id", authenticate, checkPermission("updates"), updateZone);

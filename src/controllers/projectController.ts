@@ -4,6 +4,8 @@ import Project from "../models/Project";
 import Province from "../models/Province";
 import District from "../models/District";
 import Zone from "../models/Zone";
+import LandPlot from "../models/LandPlot";
+import House from "../models/House";
 import Expense from "../models/Expense";
 // import { Op } from "sequelize";
 import { parsePagination, buildPaginationResponse } from "../utils/pagination";
@@ -72,17 +74,25 @@ export const getAllProjects = async (
         as: "zones",
         attributes: [
           "zoneId",
+          "ZoneCode",
           "zoneName",
           "zoneType",
           "totalLandArea",
           "pricePerSqm",
+          "persen",
+          "status",
         ],
         include: [
-          // ตัวอย่าง ถ้ามี LandPlot
-          // { model: LandPlot, as: "landPlots" },
-
-          // ถ้ามี House
-          // { model: House, as: "houses" },
+          // {
+          //   model: LandPlot,
+          //   as: "landPlots",
+          //   attributes: ["landPlotId", "plotNumber", "landArea", "plotWidth", "plotLength", "totalPrice", "landTitleNumber", "status"] 
+          // },
+          // {
+          //   model: House,
+          //   as: "houses",
+          //   attributes: ["id", "houseNumber", "houseType", "landArea", "builtArea", "usableArea", "totalFloors", "bedrooms", "bathrooms", "parkingSpaces", "status"]
+          // },
         ],
       });
     }
@@ -156,7 +166,22 @@ export const getProjectById = async (
   try {
     const { id } = req.params;
     const project = await Project.findByPk(id, {
-      include: ["district", "zones", "expenses"],
+      include: [
+        {
+          model: District,
+          as: "district",
+          include: [{ model: Province, as: "province" }]
+        },
+        {
+          model: Zone,
+          as: "zones",
+          include: [
+            { model: LandPlot, as: "landPlots" },
+            { model: House, as: "houses" }
+          ]
+        },
+        { model: Expense, as: "expenses" }
+      ],
     });
 
     if (!project) {
